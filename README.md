@@ -5,20 +5,12 @@ A Python script that uses AI to generate posters for films in the MySQL _sakila_
 ## Tools needed
 
 * [Python 3.x](https://www.python.org/downloads/) with all its binary utilities, **pip** in particular. 
-* A code editor like [VS Code](https://code.visualstudio.com/download), [PyCharm](https://www.jetbrains.com/pycharm/download),
-[IntelliJ Idea](https://www.jetbrains.com/idea/download) or any other.
+* A code editor like [VS Code](https://code.visualstudio.com/download), [PyCharm](https://www.jetbrains.com/pycharm/download), [IntelliJ Idea](https://www.jetbrains.com/idea/download) or any other.
+* A running instance of **MySQL** server with the __sakila__ demo database installed on it.
 
 ## How to run the script?
 
 ### On Linux and macOS
-
-First install the native mysqlclient libray:
-
-````shell
-brew install mysql-client pkg-config
-export PKG_CONFIG_PATH="/opt/homebrew/opt/mysql-client/lib/pkgconfig"
-````
-Then follow these steps:
 
 1. Create a **.env** file by duplicating, renaming and editing the supplied **.env.prototype** file.
 2. Create a virtual environment:
@@ -69,4 +61,3 @@ pip install -r requirements.txt
 ````shell
 python main.py
 ````
-# Sakila Image Generator
