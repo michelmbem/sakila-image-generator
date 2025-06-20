@@ -1,0 +1,16 @@
+*.iml
+.vim
+.idea
+.vs[code]
+.env
+Thumbs.db
+.venv
+__pycache__
+build
+out[put]
+bin
+lib
+dist
+logs
+*.pem
+*.csv
