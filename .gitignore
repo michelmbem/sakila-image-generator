@@ -3,6 +3,7 @@
 .idea
 .vs[code]
 .env
+env
 Thumbs.db
 .DS_Store
 .venv
