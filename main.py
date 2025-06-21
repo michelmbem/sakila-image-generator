@@ -17,25 +17,26 @@ logging.basicConfig(level=logging.INFO,
 log = logging.getLogger(__name__)
 
 # Function definitions
-def generate_image(prompt, save_path, crop=False):
-    prompt += str(uuid.uuid4())  # Ensure unique prompts to bypass caching
-    url = f"{os.getenv('AI_SERVICE_URL')}/prompt/{prompt.replace(" ", "-")}"
+def generate_image(prompt, save_path, crop=False, margins=(0, 0, 0, 48)):
+    unique_id = str(uuid.uuid4()).replace('-', '')
+    prompt += unique_id  # Ensure unique prompts to bypass caching
+    url = f"{os.getenv('AI_SERVICE_URL')}/prompt/{prompt.replace(" ", "+")}"
 
     while True:
         try:
             response = httpx.get(url)
             if response.status_code == 200:
-                image_save_name = f"{uuid.uuid4()}.png"
+                image_save_name = f"{unique_id}.png"
                 image_save_path = os.path.join(save_path, image_save_name)
                 os.makedirs(os.path.dirname(image_save_path), exist_ok=True)
 
                 with open(image_save_path, 'wb') as f:
                     f.write(response.content)
 
-                if crop:
-                    # Crop watermark/artifacts (adjust as needed)
+                if crop and margins:
+                    # Crop watermark/artifacts
                     image = Image.open(image_save_path)
-                    image = image.crop((0, 0, image.width, image.height - 48))
+                    image = image.crop((margins[0], margins[1], image.width - margins[2], image.height - margins[3]))
                     image.save(image_save_path)
 
                 return image_save_name
@@ -59,10 +60,10 @@ if __name__ == '__main__':
     with connection.cursor() as cursor:
         log.info('Extracting data')
         cursor.execute("""
-            SELECT f.film_id, f.title, group_concat(a.first_name + ' ' + a.last_name separator ', ')
+            SELECT f.film_id, f.title, GROUP_CONCAT(CONCAT(a.first_name, ' ', a.last_name) SEPARATOR ', ')
             FROM film f
-                join film_actor fa on f.film_id = fa.film_id
-                join actor a on fa.actor_id = a.actor_id
+                JOIN film_actor fa ON f.film_id = fa.film_id
+                JOIN actor a ON fa.actor_id = a.actor_id
             GROUP BY f.film_id, f.title
         """)
         films = cursor.fetchall()
