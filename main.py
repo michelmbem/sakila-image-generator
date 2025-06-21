@@ -1,4 +1,5 @@
-import os, time, uuid, logging.handlers, httpx, pymysql
+import os, time, uuid, httpx, logging.handlers
+import pymysql as mysql
 from datetime import datetime
 from dotenv import load_dotenv
 from PIL import Image
@@ -54,8 +55,9 @@ if __name__ == '__main__':
     os.makedirs(save_path, exist_ok=True)
 
     log.info('Connecting to database')
-    connection = pymysql.connect(host=os.getenv('DB_HOST'), port=int(os.getenv('DB_PORT')), user=os.getenv('DB_USERNAME'),
-                                 password=os.getenv('DB_PASSWORD'), db=os.getenv('DB_NAME'))
+    connection = mysql.connect(host=os.getenv('DB_HOST'), port=int(os.getenv('DB_PORT')),
+                               user=os.getenv('DB_USERNAME'),password=os.getenv('DB_PASSWORD'),
+                               db=os.getenv('DB_NAME'))
 
     with connection.cursor() as cursor:
         log.info('Extracting data')
