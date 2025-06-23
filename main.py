@@ -70,18 +70,20 @@ if __name__ == '__main__':
         """)
         films = cursor.fetchall()
 
-        for film in films:
-            log.info(f"Generating a poster for {film[0]} : {film[1]}")
-            prompt = f"poster for a movie titled {film[1]} with actors: {film[2]}"
-            image_path = generate_image(no_space(prompt), f"{film[0]:04} {film[1]}", save_path)
-            log.info(f"Generated: {image_path}")
+        with open('film_poster_data.sql', 'w') as f:
+            f.write("USE sakila;\n\n")
 
-            log.info('Saving the poster to the database')
-            cursor.execute(f"""
-                INSERT INTO film_poster (film_id, poster)
-                VALUES ({film[0]}, '{image_path}')
-                ON DUPLICATE KEY UPDATE poster = VALUES(poster)
-            """)
+            for film in films:
+                log.info(f"Generating a poster for {film[0]} : {film[1]}")
+                prompt = f"poster for a movie titled {film[1]} with actors: {film[2]}"
+                image_path = generate_image(no_space(prompt), f"{film[0]:04} {film[1]}", save_path)
+                log.info(f"Generated: {image_path}")
+
+                log.info('Saving the poster to the database')
+                query = (f"INSERT INTO film_poster (film_id, poster) VALUES ({film[0]}, '{image_path}')"
+                         f" ON DUPLICATE KEY UPDATE poster = VALUES(poster)")
+                cursor.execute(query)
+                f.write(f"{query};\n")
 
     log.info('Closing connection')
     connection.commit()
