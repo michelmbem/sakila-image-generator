@@ -18,27 +18,27 @@ logging.basicConfig(level=logging.INFO,
 log = logging.getLogger(__name__)
 
 # Function definitions
-def generate_image(prompt, save_path, crop=False, margins=(0, 0, 0, 48)):
-    unique_id = str(uuid.uuid4()).replace('-', '')
-    prompt += unique_id  # Ensure unique prompts to bypass caching
-    url = f"{os.getenv('AI_SERVICE_URL')}/prompt/{prompt.replace(" ", "+")}"
+def no_space(s):
+    return s.strip().lower().replace(" ", "-")
+
+def generate_image(prompt, name, save_path):
+    url = f"{os.getenv('AI_SERVICE_URL')}/prompt/{prompt}-{uuid.uuid4()}?width=500&height=800"
 
     while True:
         try:
             response = httpx.get(url)
             if response.status_code == 200:
-                image_save_name = f"{unique_id}.png"
+                image_save_name = f"{no_space(name)}.jpg"
                 image_save_path = os.path.join(save_path, image_save_name)
                 os.makedirs(os.path.dirname(image_save_path), exist_ok=True)
 
                 with open(image_save_path, 'wb') as f:
                     f.write(response.content)
 
-                if crop and margins:
-                    # Crop watermark/artifacts
-                    image = Image.open(image_save_path)
-                    image = image.crop((margins[0], margins[1], image.width - margins[2], image.height - margins[3]))
-                    image.save(image_save_path)
+                # Crop watermark/artifacts
+                image = Image.open(image_save_path)
+                image = image.crop((0, 0, image.width, image.height - 50))
+                image.save(image_save_path)
 
                 return image_save_name
             else:
@@ -72,8 +72,8 @@ if __name__ == '__main__':
 
         for film in films:
             log.info(f"Generating a poster for {film[0]} : {film[1]}")
-            prompt = f"realistic poster for a movie titled '{film[1]}' with actors: {film[2]}"
-            image_path = generate_image(prompt, save_path)
+            prompt = f"poster for a movie titled {film[1]} with actors: {film[2]}"
+            image_path = generate_image(no_space(prompt), f"{film[0]:04} {film[1]}", save_path)
             log.info(f"Generated: {image_path}")
 
             log.info('Saving the poster to the database')
